@@ -8,7 +8,7 @@ from langchain.agents import create_agent
 
 from db_agent.tools import (
     execute_sql_tool,
-    get_python_repl_tool,
+    get_python_tool,
     list_db_tables_tool,
     describe_table_tool,
     search_schema_tool,
@@ -31,15 +31,13 @@ def create_db_agent():
     instructions = _load_master_instructions()
     llm = ChatGroq(
         model="llama-3.3-70b-versatile",
-        temperature=0,
-        # Reads GROQ_API_KEY from environment; do not hardcode secrets in code.
-    )
+        temperature=0)
     tools = [
         list_db_tables_tool,
         describe_table_tool,
         search_schema_tool,
         execute_sql_tool,
-        get_python_repl_tool(),
+        get_python_tool(),
     ]
     prompt = SystemMessage(content=instructions)
     return create_agent(llm, tools, system_prompt=prompt)

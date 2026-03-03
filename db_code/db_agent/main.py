@@ -1,8 +1,4 @@
-"""Async AI Data Agent - terminal chat interface.
-
-Run from db_code directory:
-  cd db_code && python -m db_agent.main
-"""
+"""Async AI Data Agent - terminal chat interface."""
 
 import asyncio
 

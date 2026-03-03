@@ -9,7 +9,7 @@ Exposed tools:
 """
 
 from db_agent.tools.tortoise_sql_tool import execute_sql_tool
-from db_agent.tools.python_repl_tool import get_python_repl_tool
+from db_agent.tools.python_tool import get_python_tool
 from db_agent.tools.db_schema_tools import (
     list_db_tables_tool,
     describe_table_tool,
@@ -18,7 +18,7 @@ from db_agent.tools.db_schema_tools import (
 
 __all__ = [
     "execute_sql_tool",
-    "get_python_repl_tool",
+    "get_python_tool",
     "list_db_tables_tool",
     "describe_table_tool",
     "search_schema_tool",
