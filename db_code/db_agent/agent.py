@@ -6,7 +6,13 @@ from langchain_groq import ChatGroq
 from langchain_core.messages import SystemMessage
 from langchain.agents import create_agent
 
-from db_agent.tools import execute_sql_tool, get_python_repl_tool
+from db_agent.tools import (
+    execute_sql_tool,
+    get_python_repl_tool,
+    list_db_tables_tool,
+    describe_table_tool,
+    search_schema_tool,
+)
 
 
 def _load_master_instructions() -> str:
@@ -28,6 +34,12 @@ def create_db_agent():
         temperature=0,
         # Reads GROQ_API_KEY from environment; do not hardcode secrets in code.
     )
-    tools = [execute_sql_tool, get_python_repl_tool()]
+    tools = [
+        list_db_tables_tool,
+        describe_table_tool,
+        search_schema_tool,
+        execute_sql_tool,
+        get_python_repl_tool(),
+    ]
     prompt = SystemMessage(content=instructions)
     return create_agent(llm, tools, system_prompt=prompt)
