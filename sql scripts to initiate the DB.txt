@@ -1,0 +1,46 @@
+creating the projects table:
+CREATE TABLE public.projects (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR NOT NULL UNIQUE
+);
+
+creating the entities table:
+create table public.entities (
+	id serial primary key,
+	host_name varchar not null,
+	project_id integer not null,
+	foreign key (project_id) references public.projects(id)
+	UNIQUE (host_name, project_id)
+);
+
+creating the dir record table:
+
+CREATE EXTENSION IF NOT EXISTS ltree;
+
+CREATE TABLE public.dir_records (
+    id SERIAL,
+    entity_id INTEGER NOT NULL,
+    path LTREE NOT NULL,
+	raw_path VARCHAR NOT NULL
+	PRIMARY KEY (entity_id, id), 
+    FOREIGN KEY (entity_id) REFERENCES public.entities(id))
+	UNIQUE (entity_id, path)
+PARTITION BY LIST (entity_id);
+
+creating the dir records metadata table:
+CREATE TABLE public.dir_records_metadata (
+    id SERIAL,
+	entity_id INTEGER NOT NULL,
+    dir_record_id INTEGER NOT NULL,
+    creation_time TIMESTAMP WITH TIME ZONE,
+    last_updated TIMESTAMP WITH TIME ZONE,
+	state_timestamp TIMESTAMP WITH TIME ZONE,
+	PRIMARY KEY (entity_id, id), 
+    FOREIGN KEY (entity_id, dir_record_id) REFERENCES public.dir_records(entity_id, id))
+	
+PARTITION BY LIST (entity_id);
+
+creating default partition for dir_records and dir_records_metadata:
+CREATE TABLE dir_records_default
+PARTITION OF dir_records DEFAULT;
+

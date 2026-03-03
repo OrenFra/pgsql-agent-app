@@ -1,0 +1,107 @@
+for dir_records table:
+
+
+-- 1. Create the main partitioned table
+CREATE TABLE IF NOT EXISTS public.dir_records (
+    id SERIAL,
+    entity_id INTEGER NOT NULL,
+    state_timestamp TIMESTAMP NOT NULL,
+    path LTREE NOT NULL,
+    PRIMARY KEY (entity_id, id)
+) PARTITION BY LIST (entity_id);
+
+-- 2. Create the default partition (only needed once)
+CREATE TABLE IF NOT EXISTS public.dir_records_default
+    PARTITION OF public.dir_records DEFAULT;
+
+-- 3. Create the partition router trigger function
+CREATE OR REPLACE FUNCTION public.dir_records_insert_router()
+RETURNS TRIGGER AS $$
+DECLARE
+    partition_table_name TEXT;
+    partition_exists BOOLEAN;
+BEGIN
+    partition_table_name := 'dir_records_' || NEW.entity_id;
+
+    -- Check if the partition already exists
+    partition_exists := to_regclass('public.' || partition_table_name) IS NOT NULL;
+
+    -- If it does not exist, create it
+    IF NOT partition_exists THEN
+        EXECUTE format('
+            CREATE TABLE public.%I
+            PARTITION OF public.dir_records
+            FOR VALUES IN (%s);',
+            partition_table_name,
+            NEW.entity_id
+        );
+
+        -- Optional: create a GiST index on path
+        EXECUTE format('
+            CREATE INDEX %I_path_gist
+            ON public.%I
+            USING GIST (path);',
+            partition_table_name,
+            partition_table_name
+        );
+    END IF;
+
+    -- Insert into the correct partition
+    EXECUTE format('
+        INSERT INTO public.%I (id, entity_id, path, raw_path)
+        VALUES ($1, $2, $3, $4);',
+        partition_table_name
+    ) USING NEW.id, NEW.entity_id, NEW.path, NEW.raw_path;
+
+    -- Skip the default partition
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER dir_records_insert_with_partition
+BEFORE INSERT ON public.dir_records_default
+FOR EACH ROW
+EXECUTE FUNCTION public.dir_records_insert_router();
+
+
+-------------------------------------------------------------
+
+
+for dir_records_meatadata table:
+
+CREATE OR REPLACE FUNCTION public.dir_records_metadata_insert_router()
+RETURNS TRIGGER AS $$
+DECLARE
+    partition_table_name TEXT;
+    partition_exists BOOLEAN;
+BEGIN
+    partition_table_name := 'dir_records_metadata_' || NEW.entity_id;
+    partition_exists := to_regclass('public.' || partition_table_name) IS NOT NULL;
+
+    IF NOT partition_exists THEN
+        EXECUTE format('
+            CREATE TABLE public.%I
+            PARTITION OF public.dir_records_metadata
+            FOR VALUES IN (%s);',
+            partition_table_name,
+            NEW.entity_id
+        );
+
+    END IF;
+
+    EXECUTE format('
+        INSERT INTO public.%I (id, entity_id, dir_record_id, creation_time, last_updated, state_timestamp)
+        VALUES ($1, $2, $3, $4, $5, $6);',
+        partition_table_name
+    ) USING NEW.id, NEW.entity_id, NEW.dir_record_id, NEW.creation_time, NEW.last_updated, NEW.state_timestamp;
+
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER dir_records_metadata_insert_with_partition
+BEFORE INSERT ON public.dir_records_metadata_default
+FOR EACH ROW
+EXECUTE FUNCTION public.dir_records_metadata_insert_router();
