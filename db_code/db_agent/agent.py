@@ -9,7 +9,6 @@ from langchain.agents import create_agent
 from db_agent.tools import (
     execute_sql_tool,
     get_python_tool,
-    list_db_tables_tool,
     describe_table_tool,
     search_schema_tool,
 )
@@ -33,7 +32,6 @@ def create_db_agent():
         model="llama-3.3-70b-versatile",
         temperature=0)
     tools = [
-        list_db_tables_tool,
         describe_table_tool,
         search_schema_tool,
         execute_sql_tool,
