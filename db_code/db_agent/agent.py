@@ -5,6 +5,7 @@ from pathlib import Path
 from deepagents import create_deep_agent
 from deepagents.backends.filesystem import FilesystemBackend
 from langchain_groq import ChatGroq
+from langchain_ollama import ChatOllama
 
 from db_agent.tools import (
     execute_sql_tool,
@@ -45,7 +46,7 @@ def create_db_agent():
     # are available to the deep agent.
     project_root = Path(__file__).resolve().parents[2]
     skills_dir = project_root / "db_code" / "db_agent" / "skills"
-    backend = FilesystemBackend(root_dir=str(skills_dir))
+    backend = FilesystemBackend(root_dir=str(skills_dir), virtual_mode=True)
 
     agent = create_deep_agent(
         model=llm,

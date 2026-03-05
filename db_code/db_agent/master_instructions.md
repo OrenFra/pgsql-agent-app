@@ -31,11 +31,11 @@ You have access to both **tools** (actions) and **skills** (richer instruction b
     - `python_repl` – to run small Python snippets over data you already fetched with SQL.
 - Use skills ALLWAYS when you think the task the user gave you is related to them, and for more detailed guidance,
   workflows, and reference material:
-    - **SQL Expert skill (`sql_expert`)**:
+    - **SQL Expert skill (`sql-expert`)**:
         - Contains high‑level workflow for schema exploration and query design.
         - Explains when and how to combine `search_schema`, `describe_table`, and `execute_sql`.
         - Includes a `db_schema.md` file that documents the core tables and relationships for the filesystem database.
-    - **Python Analysis skill (`python_analysis`)**:
+    - **Python Analysis skill (`python-analysis`)**:
         - Contains detailed instructions for when and how to use `python_repl` to analyze SQL results.
         - Explains constraints (no imports, analysis‑only, use of `pd` and `np`) and example analysis patterns.
 
