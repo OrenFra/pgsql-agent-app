@@ -1,17 +1,16 @@
-"""Deep Agent factory for the AI Data Agent."""
+"""Agent factory for the AI Data Agent."""
 
 from pathlib import Path
 
-from deepagents import create_deep_agent
-from deepagents.backends.filesystem import FilesystemBackend
+from langchain.agents import create_agent
 from langchain_groq import ChatGroq
-from langchain_ollama import ChatOllama
 
 from db_agent.tools import (
+    describe_table_tool,
     execute_sql_tool,
     get_python_tool,
-    describe_table_tool,
     search_schema_tool,
+    load_skill,
 )
 
 
@@ -27,33 +26,25 @@ def _load_master_instructions() -> str:
 
 
 def create_db_agent():
-    """Create the Deep Agent with database and Python analysis tools."""
+    """Create the LangChain agent with database and Python analysis tools."""
     instructions = _load_master_instructions()
-
-    llm = ChatGroq(
-        model="llama-3.3-70b-versatile",
-        temperature=0,
-    )
-
     tools = [
+        load_skill,
         describe_table_tool,
         search_schema_tool,
         execute_sql_tool,
-        get_python_tool(),
+        get_python_tool()
     ]
 
-    # Use a filesystem backend rooted at the project so skills and other files
-    # are available to the deep agent.
-    project_root = Path(__file__).resolve().parents[2]
-    skills_dir = project_root / "db_code" / "db_agent" / "skills"
-    backend = FilesystemBackend(root_dir=str(skills_dir), virtual_mode=True)
+    llm = ChatGroq(
+        model="openai/gpt-oss-120b",
+        temperature=0,
+    )
 
-    agent = create_deep_agent(
+    agent = create_agent(
         model=llm,
         tools=tools,
         system_prompt=instructions,
-        backend=backend,
-        skills=[str(skills_dir)],
     )
 
     return agent
