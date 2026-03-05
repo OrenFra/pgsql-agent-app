@@ -18,7 +18,7 @@ class SearchSchemaInput(BaseModel):
         ...,
         description=(
             "Fragment of a table or column name to search for "
-            "(e.g. 'extension', 'project', 'entity'). Use a single word or fragment "
+            "(e.g. 'extension', 'project', 'entity'). Use a single word or fragment"
             "It is matched case-insensitively."
         ),
     )
@@ -49,8 +49,9 @@ class SearchSchemaTool(BaseTool):
     description: str = (
         "Search PostgreSQL tables and columns by a name fragment. Input: 'name_fragment' "
         "(single word or fragment). Returns all (table, column) pairs in the current schema "
-        "whose names contain that fragment, case-insensitively."
-        "Use this when you know the concept but not the exact table/column name."
+        "whose names contain that fragment, case-insensitively. Use this when you know the "
+        "concept but not the exact table/column name, and combine it with the SQL Expert skill "
+        "to decide which tables to query."
     )
     args_schema: type = SearchSchemaInput
 

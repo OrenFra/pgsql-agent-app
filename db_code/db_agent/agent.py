@@ -1,10 +1,10 @@
-"""LangChain ReAct-style agent factory for the AI Data Agent."""
+"""Deep Agent factory for the AI Data Agent."""
 
 from pathlib import Path
 
+from deepagents import create_deep_agent
+from deepagents.backends.filesystem import FilesystemBackend
 from langchain_groq import ChatGroq
-from langchain_core.messages import SystemMessage
-from langchain.agents import create_agent
 
 from db_agent.tools import (
     execute_sql_tool,
@@ -26,16 +26,33 @@ def _load_master_instructions() -> str:
 
 
 def create_db_agent():
-    """Create the LangChain agent with Tortoise SQL and Python REPL tools."""
+    """Create the Deep Agent with database and Python analysis tools."""
     instructions = _load_master_instructions()
+
     llm = ChatGroq(
         model="llama-3.3-70b-versatile",
-        temperature=0)
+        temperature=0,
+    )
+
     tools = [
         describe_table_tool,
         search_schema_tool,
         execute_sql_tool,
         get_python_tool(),
     ]
-    prompt = SystemMessage(content=instructions)
-    return create_agent(llm, tools, system_prompt=prompt)
+
+    # Use a filesystem backend rooted at the project so skills and other files
+    # are available to the deep agent.
+    project_root = Path(__file__).resolve().parents[2]
+    skills_dir = project_root / "db_code" / "db_agent" / "skills"
+    backend = FilesystemBackend(root_dir=str(skills_dir))
+
+    agent = create_deep_agent(
+        model=llm,
+        tools=tools,
+        system_prompt=instructions,
+        backend=backend,
+        skills=[str(skills_dir)],
+    )
+
+    return agent
