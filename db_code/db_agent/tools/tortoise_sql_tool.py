@@ -44,6 +44,7 @@ class ExecuteSQLTool(BaseTool):
     name: str = "execute_sql"
     description: str = (
         "Execute a read-only SQL SELECT (or WITH) query against the PostgreSQL database. "
+        "Argument: 'query' (string) containing a single read-only SQL statement. "
         "Database schema summary:\n"
         "- projects(id, name)\n"
         "- entities(id, host_name, project_id -> projects.id)\n"

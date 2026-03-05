@@ -19,7 +19,8 @@ class DescribeTableInput(BaseModel):
         description=(
             "Name of the table to describe (e.g. 'projects', 'entities', "
             "'dir_records', 'dir_records_metadata'). Schema is assumed from the "
-            "current search_path; do not include a schema prefix."
+            "current search_path; do not include a schema prefix. Allowed characters: "
+            "letters, digits, and underscores only; the name must not start with a digit."
         ),
     )
 
@@ -52,9 +53,8 @@ class DescribeTableTool(BaseTool):
     name: str = "describe_table"
     description: str = (
         "Describe a single PostgreSQL table: columns, data types, nullability, defaults, "
-        "primary key, and foreign keys. Input: 'table' (name of the table, without schema). "
-        "Use this tool whenever you are not completely sure about a table's structure before "
-        "writing SQL that reads from it."
+        "primary key, and foreign keys. Input: 'table' (the table name)"
+        "Use this tool whenever you are not completely sure about a table's structure before writing SQL that reads from it."
     )
     args_schema: type = DescribeTableInput
 

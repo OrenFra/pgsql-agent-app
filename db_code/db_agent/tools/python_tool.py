@@ -9,19 +9,21 @@ from langchain_experimental.tools import PythonAstREPLTool
 def get_python_tool() -> PythonAstREPLTool:
     """Return PythonAstREPLTool with pandas/numpy pre-loaded.
 
-    IMPORTANT: This tool must be used ONLY after data has been retrieved via execute_sql.
-    Use it for analysis, aggregations, statistics, filtering, or formatting—never for DB access.
-    This REPL cannot import any third-party libraries; it may only use Python's standard library.
-    pandas is available as 'pd' and numpy as 'np' without importing them inside the REPL code.
+    IMPORTANT RULES FOR THIS TOOL:
+    - Do NOT write any import statements. pandas is already available as 'pd' and numpy as 'np'.
+    - Use this tool ONLY after data has been retrieved via execute_sql.
+    - Use it only for analysis, aggregations, statistics, filtering, or formatting—never for DB access.
+    - Pass your code as a single string argument (field name: 'query').
+    - This REPL may only use Python's standard library plus the pre-loaded 'pd' and 'np'.
     """
     return PythonAstREPLTool(
         name="python_repl",
         description=(
-            "Execute Python code for data analysis. Use ONLY after you have already "
-            "retrieved data with execute_sql. This REPL cannot import any third-party "
-            "libraries and may only use Python's built-in standard library. "
-            "pandas is available as 'pd' and numpy as 'np' without importing them. "
-            "Use for aggregations, statistics, filtering, or formatting—never for database queries."
+            "Run small Python snippets to analyze data you already fetched with execute_sql. "
+            "Do NOT write any import statements—pandas is available as 'pd' and numpy as 'np' "
+            "without importing them. Use this tool only for aggregations, statistics, filtering, "
+            "or formatting of existing data, never for database access. Pass your code as a single "
+            "string input (field name: 'query')."
         ),
         globals={"pd": pd, "np": np},
     )

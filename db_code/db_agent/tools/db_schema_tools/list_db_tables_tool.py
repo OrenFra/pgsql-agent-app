@@ -46,7 +46,7 @@ class ListDBTablesTool(BaseTool):
     description: str = (
         "List all user tables in the current PostgreSQL database, including their schema, "
         "table type (e.g. BASE TABLE, PARTITIONED TABLE) and an estimated row count. "
-        "This tool takes NO arguments. Call it when you are unsure which tables exist "
+        "This tool takes NO arguments; call it with no parameters. Call it when you are unsure which tables exist "
         "or want a quick overview of the database structure before writing SQL."
     )
     args_schema: type = _NoArgs
